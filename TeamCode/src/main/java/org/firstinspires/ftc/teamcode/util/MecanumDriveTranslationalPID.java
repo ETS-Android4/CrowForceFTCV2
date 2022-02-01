@@ -8,6 +8,7 @@ import android.graphics.Point;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.Baguette;
 import org.firstinspires.ftc.teamcode.teleops.MecanumTeleOp;
 
 public class MecanumDriveTranslationalPID {
@@ -15,45 +16,63 @@ public class MecanumDriveTranslationalPID {
     public static final double kI = 0.0;
     public static final double kD = 0.0;
 
-    public static double thresholdInches = 1; // The accuracy to which move
+    public static double thresholdInchesSquared = 1; // The accuracy to which move. squared for efficiency
 
     public static Pose2D lastPose; // the angle from the last frame. used in derivative calculations and wrap around errors
     public static Pose2D dPose; // difference between the angle from the current frame and lastAngle
 
     public static void turnPID(Pose2D _endPose) {
-        Pose2D _startingAngle =
+        Pose2D startingPose = getCurrentPose();
 
-        lastAngle = _startingAngle;
-        deltaTheta = 0;
+        lastPose = startingPose;
+        dPose = Pose2D.zero;
 
-        double error;
-        double adjustedAngle;
+        Pose2D currentPos = startingPose;
+        Pose2D error = _endPose.signedDifference(currentPos);
+        double errorSqrMag = error.x * error.x + error.y * error.y;
 
-        double integral = 0;
+        Pose2D integral = Pose2D.zero;
 
         double lastTime = System.nanoTime();
         double dt = 0;
 
-        while (thresholdRadians < Math.abs(_startingAngle - _targetRadians)) {
+        while (thresholdInchesSquared < errorSqrMag) {
+            currentPos = getCurrentPose();
 
-            error = -_targetRadians - getCurrentAngle();
+            error = _endPose.signedDifference(currentPos);
 
-            deltaTheta = getCurrentAngle() - lastAngle;
+            dPose = currentPos.signedDifference(lastPose);
 
-            telemetry.addData("Current: ", getCurrentAngle());
-            telemetry.addData("dTheta: ",  deltaTheta);
+            telemetry.addData("Current: ", currentPos);
+            telemetry.addData("dTheta: ",  dPose);
             telemetry.addData("Error:", error);
             telemetry.update();
 
-            integral += error;
-
             dt = System.nanoTime() - lastTime;
 
-            double P = kP * error;
-            double I = kI * integral;
-            double D = kD * (error - lastAngle) / dt;
+            integral = integral.add( error.mult(dt) ) ; // frame by frame riemann sum
 
-            MecanumTeleOp.setAllPowers(P+I+D);
+            Pose2D P = error.mult(kP);
+            Pose2D I = integral.mult(kI);
+            Pose2D D = dPose.mult(error).mult(1/dt).mult(kD);
+
+            Pose2D PID = P.add(I).add(D);
+
+            //Dividing by denominator will restrict domain of power to [-1, 1]
+
+            double denominator = Math.max(Math.abs(PID.y) + Math.abs(PID.x), 1);
+            double y = PID.y;
+            double x = PID.x;
+
+            double fl = (y + x) / denominator;
+            double bl = (y - x) / denominator;
+            double fr = (y - x) / denominator;
+            double br = (y + x) / denominator;
+
+            Baguette.flm.setPower(fl);
+            Baguette.blm.setPower(bl);
+            Baguette.frm.setPower(fr);
+            Baguette.brm.setPower(br);
 
             lastTime = System.nanoTime();
         }
@@ -62,7 +81,7 @@ public class MecanumDriveTranslationalPID {
     }
 
     public static Pose2D getCurrentPose() {
-        Position pos = MecanumTeleOp.imu.getPosition().toUnit(DistanceUnit.INCH);
-        return new Pose2D(pos.x, pos.y, MecanumTeleOp.imu.)
+        Position pos = Baguette.imu.getPosition().toUnit(DistanceUnit.INCH);
+        return new Pose2D(pos.x, pos.y, Baguette.imu.getAngularOrientation().toAngleUnit(AngleUnit.RADIANS).firstAngle);
     }
 }

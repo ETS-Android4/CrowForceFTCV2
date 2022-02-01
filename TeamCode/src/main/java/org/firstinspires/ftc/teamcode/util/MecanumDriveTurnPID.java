@@ -8,6 +8,7 @@ import static java.lang.Math.PI;
 import android.icu.text.SymbolTable;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Baguette;
 import org.firstinspires.ftc.teamcode.teleops.MecanumTeleOp;
 
 public class MecanumDriveTurnPID {
@@ -37,7 +38,7 @@ public class MecanumDriveTurnPID {
 
         while (thresholdRadians < Math.abs(_startingAngle - _targetRadians)) {
 
-            error = -_targetRadians - getCurrentAngle();
+            error = _targetRadians - getCurrentAngle();
 
             deltaTheta = getCurrentAngle() - lastAngle;
 
@@ -46,15 +47,21 @@ public class MecanumDriveTurnPID {
             telemetry.addData("Error:", error);
             telemetry.update();
 
-            integral += error;
+
 
             dt = System.nanoTime() - lastTime;
+            integral += error * dt;
 
             double P = kP * error;
             double I = kI * integral;
             double D = kD * (error - lastAngle) / dt;
 
-            MecanumTeleOp.setAllPowers(P+I+D);
+            double PID = P+I+D;
+
+            Baguette.frm.setPower(PID);
+            Baguette.flm.setPower(-PID);
+            Baguette.brm.setPower(-PID);
+            Baguette.blm.setPower(PID);
 
             lastTime = System.nanoTime();
         }
@@ -63,7 +70,7 @@ public class MecanumDriveTurnPID {
     }
 
     public static double getCurrentAngle() {
-        return MecanumTeleOp.imu.getAngularOrientation().toAngleUnit(AngleUnit.RADIANS).firstAngle;
+        return Baguette.imu.getAngularOrientation().toAngleUnit(AngleUnit.RADIANS).firstAngle;
     }
 }
 

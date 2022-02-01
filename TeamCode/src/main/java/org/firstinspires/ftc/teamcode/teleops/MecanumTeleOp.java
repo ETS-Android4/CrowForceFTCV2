@@ -6,35 +6,34 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.Baguette;
+
 @TeleOp(name="MainTeleop",group = "comp")
 public class MecanumTeleOp extends LinearOpMode {
-    public static DcMotor flm;
-    public static DcMotor blm;
-    public static DcMotor frm;
-    public static DcMotor brm;
-
-    public static BNO055IMU imu;
-
     @Override
     public void runOpMode() throws InterruptedException {
         // Make sure ID's match config
-        flm = hardwareMap.dcMotor.get("f_l_m");
-        blm = hardwareMap.dcMotor.get("b_l_m");
-        frm = hardwareMap.dcMotor.get("f_rm");
-        brm = hardwareMap.dcMotor.get("b_r_m");
+        Baguette.flm = hardwareMap.dcMotor.get("f_l_m");
+        Baguette.blm = hardwareMap.dcMotor.get("b_l_m");
+        Baguette.frm = hardwareMap.dcMotor.get("f_rm");
+        Baguette.brm = hardwareMap.dcMotor.get("b_r_m");
 
         // Reverse the right side motors, left for neverest
-        frm.setDirection(DcMotorSimple.Direction.REVERSE);
-        brm.setDirection(DcMotorSimple.Direction.REVERSE);
+        Baguette.frm.setDirection(DcMotorSimple.Direction.REVERSE);
+        Baguette.brm.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //declares robots imu and sets to radians
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        Baguette.imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        Baguette.initializeBaguette();
 
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+            Baguette.update();
+
             //
             //MECANUM DRIVE SECTION
             //
@@ -49,17 +48,17 @@ public class MecanumTeleOp extends LinearOpMode {
             double fr = (y - x - rx) / denominator;
             double br = (y + x - rx) / denominator;
 
-            flm.setPower(fl);
-            blm.setPower(bl);
-            frm.setPower(fr);
-            brm.setPower(br);
+            Baguette.flm.setPower(fl);
+            Baguette.blm.setPower(bl);
+            Baguette.frm.setPower(fr);
+            Baguette.brm.setPower(br);
         }
     }
 
     public static void setAllPowers(double _pow) {
-        flm.setPower(_pow);
-        blm.setPower(_pow);
-        frm.setPower(_pow);
-        brm.setPower(_pow);
+        Baguette.flm.setPower(_pow);
+        Baguette.blm.setPower(_pow);
+        Baguette.frm.setPower(_pow);
+        Baguette.brm.setPower(_pow);
     }
 }
