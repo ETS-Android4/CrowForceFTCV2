@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Baguette;
 import org.firstinspires.ftc.teamcode.Toggle;
 
 public class Arm {
@@ -19,8 +20,10 @@ public class Arm {
     private Toggle clampToggle = new Toggle(Toggle.ToggleTypes.flipToggle, true);
 
     public Arm(String _CLAMP_SERVO_CONFIG, String _ARM_SERVO_CONFIG) {
-        clampServo = hardwareMap.servo.get(_CLAMP_SERVO_CONFIG);
-        elbowServo = hardwareMap.servo.get(_ARM_SERVO_CONFIG);
+        clampServo = Baguette.hardwareMap.servo.get(_CLAMP_SERVO_CONFIG);
+        elbowServo = Baguette.hardwareMap.servo.get(_ARM_SERVO_CONFIG);
+
+        init();
     }
 
     public void init() {
@@ -29,17 +32,17 @@ public class Arm {
     }
 
     public void update() {
-        if (gamepad2.left_bumper || gamepad2.right_bumper) {
+        if (Baguette.gamepad2.left_bumper || Baguette.gamepad2.right_bumper) {
             if (!heldElbowLast) {
                 heldElbowLast = true;
 
-                if (gamepad2.left_bumper && elbowState != 0) {
+                if (Baguette.gamepad2.left_bumper && elbowState != 0) {
                     elbowState--;
-                    telemetry.addData("lower", "elbow");
+                    Baguette.telemetry.addData("lower", "elbow");
                 }
-                if (gamepad2.right_bumper && elbowState != 9) {
+                if (Baguette.gamepad2.right_bumper && elbowState != 9) {
                     elbowState++;
-                    telemetry.addData("raise", "elbow");
+                    Baguette.telemetry.addData("raise", "elbow");
                 }
             }
         }
@@ -58,9 +61,10 @@ public class Arm {
             elbowServo.setPosition((elbowState * (0.15/7)) + 0.425);
         }
 
-        telemetry.addData(" "  + elbowServo.getPosition(), "elbow");
-        //robot.telemetry.update();
-        clampToggle.updateToggle(gamepad2.b);
+        Baguette.telemetry.addData(" "  + elbowServo.getPosition(), "elbow");
+        Baguette.telemetry.update();
+
+        clampToggle.updateToggle(Baguette.gamepad2.b);
 
         if (clampToggle.getCurrentState()) {
             clampServo.setPosition(1);
