@@ -16,10 +16,10 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import static org.firstinspires.ftc.teamcode.Wait.waitTime;
 
 @Autonomous(group = "Comp", name = "blue back")
-class BlueBack extends LinearOpMode {
+public class BlueBack extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Baguette.initializeBaguette();
+        /*Baguette.initializeBaguette(this);
         MecanumDriveTranslationalPID move = new MecanumDriveTranslationalPID();
         MecanumDriveTurnPID turn = new MecanumDriveTurnPID();
 
@@ -31,9 +31,9 @@ class BlueBack extends LinearOpMode {
 
             @Override
             public void onError(int errorCode) {
-                /*
-                 * This will be called if the camera could not be opened
-                 */
+
+                 This will be called if the camera could not be opened
+
             }
         });
 
@@ -73,6 +73,6 @@ class BlueBack extends LinearOpMode {
             waitTime(500);
             move.tPID(new Pose2D(0, 18, 0));
             waitTime(500);
-        }
+        }*/
     }
 }

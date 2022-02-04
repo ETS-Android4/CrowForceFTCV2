@@ -8,17 +8,17 @@ import org.firstinspires.ftc.teamcode.util.MecanumDriveTranslationalPID;
 import org.firstinspires.ftc.teamcode.util.Pose2D;
 
 @Autonomous(group = "Comp", name = "forward park")
-class ForwardPark extends LinearOpMode {
+public class ForwardPark extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Baguette.initializeBaguette();
+        /*Baguette.initializeBaguette(this);
 
         MecanumDriveTranslationalPID move = new MecanumDriveTranslationalPID();
 
         waitForStart();
         if(opModeIsActive()) {
             move.tPID(new Pose2D(0, 24, 0));
-        }
+        }*/
 
     }
 }

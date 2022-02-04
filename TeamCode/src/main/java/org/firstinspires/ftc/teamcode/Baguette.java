@@ -10,6 +10,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm;
 import org.firstinspires.ftc.teamcode.Subsystems.DuckSpinner;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
@@ -47,7 +50,7 @@ public class Baguette {
     public static double realAngle = 0;
 
     public static void initializeBaguette(OpMode _opMode) {
-        initCamera();
+
 
         hardwareMap = _opMode.hardwareMap;
 
@@ -64,7 +67,10 @@ public class Baguette {
         params.accelRange = BNO055IMU.AccelRange.G16;
         imu.initialize(params);
 
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1);
         realAngle = 0;
+
+        //initCamera(); Do this after init baguette, only in opencv enabled subsystems
 
         mecanumDrive = new MecanumDrive();
         duckSpinner = new DuckSpinner("spin_motor");
@@ -72,7 +78,7 @@ public class Baguette {
     }
 
     public static void initCamera() {
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        int cameraMonitorViewId = Baguette.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         pipeline = new camera();
@@ -80,6 +86,7 @@ public class Baguette {
     }
 
     public static void update() {
+        mecanumDrive.update();
         arm.update();
         duckSpinner.update();
     }

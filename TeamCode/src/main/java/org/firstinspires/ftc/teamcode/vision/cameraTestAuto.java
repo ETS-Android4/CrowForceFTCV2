@@ -14,7 +14,7 @@ import static org.firstinspires.ftc.teamcode.vision.camera.MarkerPosition.LEFT;
 import static org.firstinspires.ftc.teamcode.vision.camera.MarkerPosition.RIGHT;
 
 @Autonomous(group = "testing", name = "OpenCVTest")
-class cameraTestAuto extends LinearOpMode {
+public class cameraTestAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         OpenCvWebcam webcam;
