@@ -26,7 +26,7 @@ public class MecanumDriveTurnPID {
     //LEFT: + : 0 -> 180 -> -180 -> 0
     //Right: - : 0 -> -180 -> 180 -> 0
     public static void turnPID(double _targetRadians) {
-        double _startingAngle = getCurrentAngle();
+        double _startingAngle = Baguette.realAngle;
 
         lastAngle = _startingAngle;
         deltaTheta = 0;
@@ -39,13 +39,28 @@ public class MecanumDriveTurnPID {
         double lastTime = System.nanoTime();
         double dt = 0;
 
-        while (thresholdRadians < Math.abs(_startingAngle - _targetRadians)) {
+        while (thresholdRadians < Math.abs(Baguette.realAngle - _targetRadians)) {
 
             error = _targetRadians - getCurrentAngle();
 
             deltaTheta = getCurrentAngle() - lastAngle;
 
-            Baguette.telemetry.addData("Current: ", getCurrentAngle());
+            if (deltaTheta >= 180) {
+                error += 360;
+                deltaTheta += 360;
+
+                Baguette.realAngle = error;
+
+            }
+            else if (deltaTheta <= -180) {
+                error -= 360;
+                deltaTheta -= 360;
+
+                Baguette.realAngle += deltaTheta;
+
+            }
+
+            Baguette.telemetry.addData("Real: ", Baguette.realAngle);
             Baguette.telemetry.addData("dTheta: ",  deltaTheta);
             Baguette.telemetry.addData("Error:", error);
             Baguette.telemetry.update();
@@ -61,10 +76,10 @@ public class MecanumDriveTurnPID {
 
             double PID = P+I+D;
 
-            Baguette.frm.setPower(PID);
+            /*Baguette.frm.setPower(PID);
             Baguette.flm.setPower(-PID);
             Baguette.brm.setPower(PID);
-            Baguette.blm.setPower(-PID);
+            Baguette.blm.setPower(-PID);*/
 
             lastTime = System.nanoTime();
         }
@@ -76,4 +91,3 @@ public class MecanumDriveTurnPID {
         return Baguette.imu.getAngularOrientation().toAngleUnit(AngleUnit.RADIANS).firstAngle;
     }
 }
-
